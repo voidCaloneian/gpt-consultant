@@ -2,7 +2,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.generics import RetrieveAPIView
 
-from .models import Hall
+from .models import Hall, Booking
 from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer
 
 
@@ -22,3 +22,5 @@ class HallPriceAPIView(RetrieveAPIView):
     queryset = Hall.objects.all()
     serializer_class = HallPriceSerializer
     lookup_field = 'name'
+    
+print(Booking().available_dates('Ретро'))
