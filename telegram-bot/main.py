@@ -49,21 +49,27 @@ class Conversation(MessageData):
             self.add_message('user', user_message)
 
         if message.get("function_call"):
-            function_name = message["function_call"]["name"]
-            function_args = message['function_call']['arguments']
-            function_response = eval(f'{function_name}(**{function_args})')
-
-            full_message = response['choices'][0]
-            ghost_function_message = {
-                    "role": "function",
-                    "name": full_message["message"]["function_call"]["name"],
-                    "content": str(function_response),
-            }   
-            
-            self.handle_completion(ghost_function_message=ghost_function_message)
+            self.handle_function_call(message, response)
             
         else:
-            self.add_message('assistant', message_text) 
+            self.handle_assistant_message(message_text) 
+            
+    def handle_function_call(self, message, response):
+        function_name = message['function_call']['name']
+        function_args = message['function_call']['arguments']
+        function_response = eval(f'{function_name}(**{function_args})')
+
+        full_message = response['choices'][0]
+        ghost_function_message = {
+            "role": "function",
+            "name": full_message["message"]["function_call"]["name"],
+            "content": str(function_response),
+        }   
+            
+        self.handle_completion(ghost_function_message=ghost_function_message)
+    
+    def handle_assistant_message(self, message_text):
+        self.add_message('assistant', message_text) 
 
 
 class OpenAIHandler:
