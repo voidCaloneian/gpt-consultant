@@ -1,3 +1,4 @@
+from tenacity import retry, stop_after_attempt, wait_fixed, stop_after_delay
 from dotenv import load_dotenv, find_dotenv
 from os import environ as env
 from json import dumps
@@ -16,13 +17,15 @@ class ApiHandler:
         self.url = URL
         self.check_connection()
     
+    @retry(wait=wait_fixed(30), stop=stop_after_delay(5))
     def check_connection(self):
+        print('Подключаемся')
         try:
             response = requests.get(self.url)
             response.raise_for_status()
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
             raise requests.exceptions.ConnectionError(f"Не удалось подключиться к API: {e}")
-    
+        
     def get(self, url):
         try:
             response = requests.get(self.url + url)

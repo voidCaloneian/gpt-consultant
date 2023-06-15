@@ -2,6 +2,7 @@ from json import dumps
 
 from api import ApiHandler
 
+api_handler = ApiHandler()
 
 def get_hall_info(hall):
     return get_json_response(f'hall/{hall.capitalize()}')
@@ -13,7 +14,7 @@ def get_halls_list():
     return get_json_response('hall/')
 
 def get_json_response(url):
-    response_json = ApiHandler().get(url)
+    response_json = api_handler.get(url)
     if isinstance(response_json, dict) and 'detail' in response_json:
         response_json = {'error': response_json['detail']}
     return dumps(response_json)
