@@ -4,9 +4,10 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Hall, Booking, BookingDetails
+from .models import Hall, Booking
 from .services import get_hall_by_name
 from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer, BookingSerializer
+from .exceptions import HallNotFound, InvalidDateFormat, BookingNotFound
 
 from datetime import datetime, timedelta
 
@@ -36,13 +37,26 @@ class BookingCreateView(CreateModelMixin, GenericAPIView):
     
 class CheckBookingsByDayView(APIView):
     def get(self, request, hall_name, date):
-        date_obj = datetime.strptime(date, '%d.%m.%Y').date()
+        # Обработка ошибок связанных с залом
+        try:
+            hall = get_hall_by_name(hall_name)
+        except Hall.DoesNotExist:
+            raise HallNotFound()
 
-        hall = get_hall_by_name(hall_name)
         hall_opening_time = hall.opening_time
         hall_closing_time = hall.closing_time
 
+        # Обработка ошибок связанных с форматом даты
+        try:
+            date_obj = datetime.strptime(date, '%d.%m.%Y').date()
+        except ValueError:
+            raise InvalidDateFormat()
+
         bookings = Booking.objects.filter(hall=hall, date=date_obj).values('date', 'start_time', 'end_time')
+
+        # Обработка ошибок связанных с отсутствием бронирования на заданную дату
+        if not bookings:
+            raise BookingNotFound()
 
         bookings_dict = {
             'hall_data': {
@@ -55,15 +69,16 @@ class CheckBookingsByDayView(APIView):
             } for b in bookings]
         }
         
-        if len(bookings_dict['already_booked_time_ranges_by_hours']) == 0:
-            bookings_dict['already_booked_time_ranges_by_hours'] = 'Бронирований на эту дату нет. Зал в этот день полностью свободен'
+        return bookings_dict
 
-        return Response(bookings_dict)
-    
 
 class AvailableDatesView(APIView):
     def get(self, request, hall_name, days=31):
-        hall = get_hall_by_name(hall_name)
+        try:
+            hall = get_hall_by_name(hall_name)
+        except Hall.DoesNotExist:
+            raise HallNotFound()
+
         hall_opening_time = hall.opening_time
         hall_closing_time = hall.closing_time
         
@@ -86,9 +101,14 @@ class AvailableDatesView(APIView):
     
     @staticmethod
     def date_is_available(date, bookings, hall_opening_time, hall_closing_time):
+        try:
+            date_str = date.strftime('%d.%m.%Y')
+            datetime.strptime(date_str, '%d.%m.%Y')
+        except ValueError:
+            raise InvalidDateFormat()
+
         bookings_by_date = bookings.filter(date=date)
         if bookings.exists() and \
             bookings_by_date.filter(start_time=hall_opening_time).exists() and \
                 bookings_by_date.filter(end_time=hall_closing_time).exists():
-                return False
-        return True
+            return False
