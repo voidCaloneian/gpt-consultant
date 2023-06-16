@@ -84,13 +84,13 @@ class Conversation(MessageData):
 
 class OpenAIHandler:
     @retry(wait=wait_fixed(30), stop=stop_after_attempt(3))
-    def request_completion(self, messages):
+    def request_completion(self, messages, call_functions=True):
         response = openai.ChatCompletion.create(
             model=GPT_MODEL,
             temperature=0,
             messages=messages,
-            functions = SystemRoleConf().functions,
-            function_call="auto",
+            functions=SystemRoleConf().functions,
+            function_call="auto" if call_functions else 'none',
         )
         return response
 

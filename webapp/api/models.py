@@ -19,12 +19,14 @@ class Hall(models.Model):
     def __str__(self):
         return self.name
 
+
 class Booking(models.Model):
-    hall = models.ForeignKey(Hall, on_delete=models.CASCADE)
+    hall = models.ForeignKey(Hall, on_delete=models.CASCADE, blank=True)
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
-    
+    details = models.ForeignKey('BookingDetails', on_delete=models.CASCADE, null=True, blank=True)
+
     def clean(self):
         self._validate_booking_time()
         self._validate_booking_duration()
@@ -64,3 +66,10 @@ class Booking(models.Model):
     
     def __str__(self):
         return f'{self.date.strftime("%d.%m.%Y")} {self.hall}: с {self.start_time} до {self.end_time}'
+
+class BookingDetails(models.Model):
+    client_name = models.CharField(max_length=255, null=True, blank=True)
+    client_email = models.EmailField(null=True, blank=True)
+    client_phone = models.CharField(max_length=20, null=True, blank=True)
+    num_people = models.IntegerField(null=True, blank=True)
+    cost = models.PositiveIntegerField(blank=True)

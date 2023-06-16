@@ -1,12 +1,12 @@
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, CreateModelMixin
+from rest_framework.generics import RetrieveAPIView, GenericAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Hall, Booking
+from .models import Hall, Booking, BookingDetails
 from .services import get_hall_by_name
-from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer
+from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer, BookingSerializer
 
 from datetime import datetime, timedelta
 
@@ -22,11 +22,17 @@ class HallViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             return HallListSerializer
         return HallDetailSerializer
     
-
 class HallPriceView(RetrieveAPIView):
     queryset = Hall.objects.all()
     serializer_class = HallPriceSerializer
     lookup_field = 'name'
+    
+class BookingCreateView(CreateModelMixin, GenericAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
     
 class CheckBookingsByDayView(APIView):
     def get(self, request, hall_name, date):
@@ -43,14 +49,14 @@ class CheckBookingsByDayView(APIView):
                 'opening_time': hall_opening_time.strftime('%H'),
                 'closing_time': hall_closing_time.strftime('%H')
             },
-            'bookings_by_hours': [{
+            'already_booked_time_ranges_by_hours': [{
                 'start': b['start_time'].strftime('%H'),
                 'end': b['end_time'].strftime('%H')
             } for b in bookings]
         }
         
-        if len(bookings_dict['bookings_by_hours']) == 0:
-            bookings_dict['bookings_by_hours'] = 'Бронирований на эту дату нет. Зал в этот день свободен'
+        if len(bookings_dict['already_booked_time_ranges_by_hours']) == 0:
+            bookings_dict['already_booked_time_ranges_by_hours'] = 'Бронирований на эту дату нет. Зал в этот день полностью свободен'
 
         return Response(bookings_dict)
     

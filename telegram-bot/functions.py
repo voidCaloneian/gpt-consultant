@@ -2,7 +2,9 @@ from json import dumps
 
 from api import ApiHandler
 
+
 api_handler = ApiHandler()
+
 
 def get_bookings_by_date(hall, date):
     print(get_json_response(f'hall/bookings/{hall}/{date}/'))
@@ -12,23 +14,18 @@ def get_hall_info(hall):
     return get_json_response(f'hall/{hall.capitalize()}/')
 
 def get_hall_price(hall):
-    return get_json_response(f'hall/price/{hall.capitalize()}/')
+    return get_json_response(f'hall/price/{hall.capitalize()}/', dumping=False)
 
 def get_halls_list():
     return get_json_response('hall/')
 
-def get_json_response(url):
+def get_json_response(url, dumping=True):
     response_json = api_handler.get(url)
     if isinstance(response_json, dict) and 'detail' in response_json:
         response_json = {'error': response_json['detail']}
-    return dumps(response_json)
+    return dumps(response_json) if dumping else response_json
 
 def generate_rental_info_table(**kwargs):
-    required_params = ['duration', 'hall', 'date', 'time', 'name', 'number_of_people', 'phone', 'email']
-    
-    for param in required_params:
-        if param not in kwargs:
-            return dumps({'error': f'Отсутствует параметр: {param}'})
     
     duration = kwargs['duration']
     hall = kwargs['hall']
