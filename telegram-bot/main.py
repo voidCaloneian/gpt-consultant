@@ -5,7 +5,7 @@ from os import environ as env
 import openai 
 
 from conf import SystemRoleConf
-from functions import get_hall_info, get_hall_price, get_halls_list, generate_rental_info_table
+from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_rental_info_table
 
 
 ENV_FILE = find_dotenv()
@@ -25,7 +25,14 @@ class MessageData(SystemRoleConf):
         self.messages.append({'role': role, 'content': content})
     
     def generate_system_message(self):
-        return {'role': 'assistant', 'content': self.system_message + f'Текущая дата: {datetime.now().strftime("%d.%m.%Y %H:%M")}'}
+        weekdays = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
+        
+        current_datetime = datetime.now()
+        current_datetime_str = current_datetime.strftime("%d.%m.%Y %H:%M")
+        current_weekday_str = weekdays[current_datetime.weekday()]
+        
+        full_current_datetime_str = f'Текущая дата и время: {current_datetime_str}, текущий день недели: {current_weekday_str}.'
+        return {'role': 'assistant', 'content': self.system_message + full_current_datetime_str}
         
     def prepare_messages(self, user_message, temprorary_message=None):
         messages = [
@@ -88,16 +95,7 @@ class OpenAIHandler:
         return response
 
 conv = Conversation()
-print('Здравствуйте, кто вы')
-conv.handle_completion('Здравствуйте, кто вы')
-print(conv.messages[-1]['content'])
-print('Я хотел бы арендовать зал')
-conv.handle_completion('Я хотел бы арендовать зал')
-print(conv.messages[-1]['content'])
-print('Меня интересует зал минимализм')
-conv.handle_completion('Меня интересует зал минимализм')
-print(conv.messages[-1]['content'])
-print('Хотя давайте лучше зал ретро')
-conv.handle_completion('Хотя давайте лучше зал ретро')
-print(conv.messages[-1]['content'])
-input()
+
+while True:
+    conv.handle_completion(input('Ваше сообщение: '))
+    print(conv.messages[-1].get('content'))

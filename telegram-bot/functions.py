@@ -4,11 +4,15 @@ from api import ApiHandler
 
 api_handler = ApiHandler()
 
+def get_bookings_by_date(hall, date):
+    print(get_json_response(f'hall/bookings/{hall}/{date}/'))
+    return get_json_response(f'hall/bookings/{hall}/{date}/')
+
 def get_hall_info(hall):
-    return get_json_response(f'hall/{hall.capitalize()}')
+    return get_json_response(f'hall/{hall.capitalize()}/')
 
 def get_hall_price(hall):
-    return get_json_response(f'hall/price/{hall.capitalize()}')
+    return get_json_response(f'hall/price/{hall.capitalize()}/')
 
 def get_halls_list():
     return get_json_response('hall/')

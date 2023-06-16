@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-from rest_framework.exceptions import NotFound
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class Hall(models.Model):
@@ -62,37 +61,6 @@ class Booking(models.Model):
         
         if existing_bookings.exists():
             raise ValidationError('На это время зал уже забронирован.')
-    
-    def available_dates(self, hall_name: str, days=31):
-        try:
-            hall = Hall.objects.get(name=hall_name)
-        except Hall.DoesNotExist:
-            raise NotFound('Зал с таким именем не был найден')
-        hall_opening_time = hall.opening_time
-        hall_closing_time = hall.closing_time
-        
-        available = []
-        today = datetime.today().date()
-        end_date = today + timedelta(days=days)
-
-        bookings = Booking.objects.filter(hall=hall)
-        for date in self.daterange(today, end_date):
-            bookings_by_date = bookings.filter(date=date)
-            if bookings_by_date.filter(start_time=hall_opening_time).exists() and \
-                bookings_by_date.filter(end_time=hall_closing_time).exists():
-                    continue
-            else:
-                available.append(date.strftime('%d.%m.%Y'))
-
-        return available
-
-    @staticmethod
-    def daterange(start_date, end_date):
-        """
-        Вспомогательная функция, возвращает генератор дат между двумя датами.
-        """
-        for n in range(int((end_date - start_date).days) + 1):
-            yield start_date + timedelta(n)
     
     def __str__(self):
         return f'{self.date.strftime("%d.%m.%Y")} {self.hall}: с {self.start_time} до {self.end_time}'
