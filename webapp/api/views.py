@@ -37,11 +37,8 @@ class BookingCreateView(CreateModelMixin, GenericAPIView):
     
 class CheckBookingsByDayView(APIView):
     def get(self, request, hall_name, date):
-        try:
-            hall = get_hall_by_name(hall_name)
-        except Hall.DoesNotExist:
-            raise HallNotFound()
-
+        hall = get_hall_by_name(hall_name)
+        
         hall_opening_time = hall.opening_time
         hall_closing_time = hall.closing_time
 
