@@ -37,7 +37,6 @@ class BookingCreateView(CreateModelMixin, GenericAPIView):
     
 class CheckBookingsByDayView(APIView):
     def get(self, request, hall_name, date):
-        # Обработка ошибок связанных с залом
         try:
             hall = get_hall_by_name(hall_name)
         except Hall.DoesNotExist:
@@ -46,7 +45,6 @@ class CheckBookingsByDayView(APIView):
         hall_opening_time = hall.opening_time
         hall_closing_time = hall.closing_time
 
-        # Обработка ошибок связанных с форматом даты
         try:
             date_obj = datetime.strptime(date, '%d.%m.%Y').date()
         except ValueError:
@@ -54,7 +52,6 @@ class CheckBookingsByDayView(APIView):
 
         bookings = Booking.objects.filter(hall=hall, date=date_obj).values('date', 'start_time', 'end_time')
 
-        # Обработка ошибок связанных с отсутствием бронирования на заданную дату
         if not bookings:
             raise BookingNotFound()
 
