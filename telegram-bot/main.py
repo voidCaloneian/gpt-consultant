@@ -89,7 +89,7 @@ class OpenAIHandler:
             model=GPT_MODEL,
             temperature=0,
             messages=messages,
-            functions=SystemRoleConf().functions,
+            functions=SystemRoleConf.functions,
             function_call="auto" if call_functions else 'none',
         )
         return response
