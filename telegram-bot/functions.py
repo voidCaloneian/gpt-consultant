@@ -7,7 +7,6 @@ api_handler = ApiHandler()
 
 
 def get_bookings_by_date(hall, date):
-    print(get_json_response(f'hall/bookings/{hall}/{date}/'))
     return get_json_response(f'hall/bookings/{hall}/{date}/')
 
 def get_hall_info(hall):
