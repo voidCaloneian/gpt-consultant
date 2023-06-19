@@ -6,7 +6,13 @@ git clone https://github.com/voidCaloneian/gpt-consultant.git
 cd gpt-consultant
 python webapp\manage.py makemigrations
 python webapp\manage.py migrate
+python webapp\manage.py initdata
 ```
+## Примечание!
+### Команда ```python webapp\manage.py initdata``` инициализирует данные для тестирования проекта, а именно:
+  - Создаёт 3 заранее подготовленных зала
+  - Создаёт в случайном количестве бронирования на следующие 10 дней (настройки генерации можно поменять в **webapp\api\management\commands\initdata.py**
+  - Создаёт аккаунт администратора для админ панели сайта. Логин - theresa | Пароль - qwe123
 ## В корневой папке проекта (где находится .gitignore, README.md) в файле **.env** выполните эти действия:
 - Укажите свой OpenAI API Key **OPENAIAPI_KEY** 
 - Укажите токен своего телеграмм бота **TELEGRAMBOT_TOKEN** 
