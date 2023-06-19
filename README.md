@@ -7,6 +7,7 @@ cd gpt-consultant
 python webapp\manage.py makemigrations
 python webapp\manage.py migrate
 python webapp\manage.py initdata
+echo Установка проекта прошла успешно!
 ```
 ## Примечание!
 ### Команда ```python webapp\manage.py initdata``` инициализирует данные для тестирования проекта, а именно:
