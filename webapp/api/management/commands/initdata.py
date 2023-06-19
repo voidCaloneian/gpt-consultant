@@ -3,6 +3,8 @@ from datetime import timedelta
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.core.management import call_command
+from django.contrib.auth.models import User
 
 from api.models import Hall, Booking
 
@@ -37,11 +39,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.create_halls()
-        self.create_bookings_for_week()
+        self.create_random_bookings()
+        self.create_super_user()
             
     def create_halls(self):
         for hall_data in self.halls_data:
             Hall.objects.create(**hall_data)
+        
+        print('Залы были успешно созданы')
     
     def create_random_bookings(self, days=10, payload_percentage=50, max_booking_length=3):
         '''
@@ -56,9 +61,9 @@ class Command(BaseCommand):
             opening_time = hall.opening_time
             closing_time = hall.closing_time
             
-            for _ in range(int(0.4 * payload_percentage)):
+            for _ in range(int(0.6 * payload_percentage)):
                 day_datetime = start_of_week + timedelta(days=random.randint(1, days))
-                start_hour = random.randint(opening_time.hour, closing_time.hour - 1)
+                start_hour = random.randint(opening_time.hour, closing_time.hour - max_booking_length)
                 start_minute = 0
                 start_time = timezone.datetime.combine(day_datetime, timezone.datetime.min.time()) + timedelta(hours=start_hour, minutes=start_minute)
 
@@ -68,5 +73,16 @@ class Command(BaseCommand):
                 
                 if not overlapping_bookings.exists():
                     Booking.objects.create(hall=hall, date=start_time.date(), start_time=start_time.time(), end_time=end_time.time())
+                    
+        print('Бронирования на следующие', days, 'были успешно созданы')
         
-  
+    def create_super_user(self):
+        username = 'theresa'
+        email = 'theresa@example.com'
+        password = 'qwe123'
+        call_command("createsuperuser", '--username', username, '--email', email, interactive=False)
+        user = User.objects.get(username=username)
+        user.set_password(password)
+        user.save()
+        
+        print('Данные для входа в админ панель: имя - theresa | пароль - qwe123')
