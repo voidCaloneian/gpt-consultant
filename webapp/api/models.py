@@ -1,7 +1,11 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
+
+SHA_256_LENGTH = 64
 
 
 class Hall(models.Model):
@@ -19,14 +23,20 @@ class Hall(models.Model):
     def __str__(self):
         return self.name
 
-
 class Booking(models.Model):
     hall = models.ForeignKey(Hall, on_delete=models.CASCADE, blank=True)
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
+    created_at = models.DateTimeField(default=timezone.now)
+    hash_key = models.CharField(max_length=SHA_256_LENGTH, null=True, blank=True) 
+    is_paid = models.BooleanField(default=False, null=True, blank=True)
     details = models.ForeignKey('BookingDetails', on_delete=models.CASCADE, null=True, blank=True)
-
+    
+    def save(self, *args, **kwargs):
+        super().save()
+        self.full_clean()
+    
     def clean(self):
         self._validate_booking_time()
         self._validate_booking_duration()
@@ -43,17 +53,22 @@ class Booking(models.Model):
     def _validate_booking_duration(self):
         start_datetime = datetime.combine(self.date, self.start_time)
         end_datetime = datetime.combine(self.date, self.end_time)
-
-        # Округляем время окончания бронирования до ближайшего часа
-        end_hour = (end_datetime.minute // 60) + end_datetime.hour
-        end_datetime = end_datetime.replace(hour=end_hour, minute=0)
-
-        duration = end_datetime - start_datetime
-
-        # Проверяем, что длительность бронирования - целое число часов
-        if duration.total_seconds() % 3600 != 0:
-            raise ValidationError('Длительность бронирования должна быть кратна часу')
-
+        
+        do_we_save = False
+        
+        if start_datetime.minute > 0:
+            start_rounded = start_datetime.replace(minute=0) + timedelta(minutes=60)
+            self.start_time = start_rounded.time()
+            do_we_save = True
+            
+        if end_datetime.minute > 0:
+            end_rounded = end_datetime.replace(minute=0) + timedelta(minutes=60)
+            self.end_time = end_rounded.time()
+            do_we_save = True
+            
+        if do_we_save:
+            self.save()
+        
     def _validate_existing_bookings(self):
         existing_bookings = Booking.objects.filter(
             models.Q(date=self.date),

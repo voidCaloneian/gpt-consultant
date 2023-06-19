@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Заказ</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <style>
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card mt-5">
+          <div class="card-body">
+            <h3 class="card-title text-center mb-4">Детали заказа</h3>
+            <table class="table table-striped">
+              <tr>
+                <th>Зал:</th>
+                <td>{{ booking.hall }}</td>
+              </tr>
+              <tr>
+                <th>Дата:</th>
+                <td>{{ date }}</td>
+              </tr>
+              <tr>
+                <th>Время начала:</th>
+                <td>{{ start_time }}</td>
+              </tr>
+              <tr>
+                <th>Время окончания:</th>
+                <td>{{ end_time }}</td>
+              </tr>
+              <tr>
+                <th>Количество человек:</th>
+                <td>{{ details.num_people }}</td>
+              </tr>
+              <tr>
+                <th>Стоимость:</th>
+                <td>{{ details.cost }} рублей</td>
+              </tr>
+              <tr>
+                <th>Оплачено:</th>
+                <td>{% if booking.is_paid %} Да {% else %} Нет {% endif %}</td>
+              </tr>
+            </table>
+            <center><button class="btn btn-primary btn-block">Оплатить</button></center>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+</html>
