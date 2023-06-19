@@ -16,7 +16,7 @@ ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
     
-telegram_bot_token = env.get('TELEGRAMBOT_TOKEN')
+TELEGRAMBOT_TOKEN = env.get('TELEGRAMBOT_TOKEN')
 
 
 def setup_bot(token: str):
@@ -66,5 +66,5 @@ class MessageHandler:
 
 
 if __name__ == '__main__':
-    dp = setup_bot('6299184955:AAE7iC78pIL7t67y8aUZICXW1VWuoM6nTR0')
+    dp = setup_bot(TELEGRAMBOT_TOKEN)
     executor.start_polling(dp, skip_updates=True)
