@@ -1,5 +1,4 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters import Command
 from aiogram.types import ParseMode
 from aiogram import executor
@@ -12,8 +11,7 @@ from modules.conversation import Conversation, WELCOME_MESSAGE
 
 def setup_bot(token: str):
     bot = Bot(token=token)
-    storage = MemoryStorage()
-    dp = Dispatcher(bot, storage=storage)
+    dp = Dispatcher(bot)
 
     message_handler = MessageHandler()
 
@@ -40,10 +38,10 @@ class MessageHandler:
         last_message_time = self.users_last_message_time.get(user_id)
     
         if last_message_time is not None and current_time - last_message_time < 5:
-            await self.handle_quick_message(user_id, message)
+            await self.handle_quick_message(message)
         else:
             self.users_last_message_time[user_id] = current_time
-            await self.handle_slow_message(message)
+            await self.handle_slow_message(user_id, message)
     
     async def handle_quick_message(self, message: types.Message):
         await message.answer('Подождите несколько секунд, прежде чем отправлять следующее сообщение.')
@@ -58,5 +56,5 @@ class MessageHandler:
 
 
 if __name__ == '__main__':
-    dp = setup_bot('BOT_TOKEN')
+    dp = setup_bot('6299184955:AAE7iC78pIL7t67y8aUZICXW1VWuoM6nTR0')
     executor.start_polling(dp, skip_updates=True)

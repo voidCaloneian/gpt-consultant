@@ -4,19 +4,24 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.db import transaction
-from django.shortcuts import render
-from django.views import View
 from django.http import HttpResponse
+from django.shortcuts import render
+from django.db import transaction
+from django.urls import reverse
+from django.views import View
+
 
 from .models import Hall, Booking, BookingDetails
 from .services import calculate_cost, calculate_delta, get_hall_by_name
 from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer
-from .utils.exceptions import InvalidDateFormat, BookingNotFound, BookingDataMissingError
+from .utils.exceptions import InvalidDateFormat, BookingDataMissingError, BookingNotFound
 
 import hashlib
 from datetime import datetime
 from dateutil.parser import parse
+
+
+URL = 'http://127.0.0.1:8000'
 
 
 class HallViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
@@ -48,8 +53,7 @@ class CheckBookingsByDayView(APIView):
             raise InvalidDateFormat()
 
         bookings = Booking.objects.filter(hall=hall, date=date_obj).values('date', 'start_time', 'end_time')
-
-        if not bookings:
+        if bookings.count() == 0:
             raise BookingNotFound()
 
         bookings_dict = {
@@ -62,8 +66,8 @@ class CheckBookingsByDayView(APIView):
                 'end': b['end_time'].strftime('%H')
             } for b in bookings]
         }
-        
-        return bookings_dict
+        print(bookings_dict)
+        return Response(bookings_dict)
 
 class HashBookingView(APIView):
     @transaction.atomic()
@@ -116,7 +120,9 @@ class HashBookingView(APIView):
         
         booking.save()
 
-        return Response(hash_key)
+        return Response(
+            {'link': URL + reverse('checkout', args=[hash_key])}
+        )
 
 
 class CheckoutView(View):
