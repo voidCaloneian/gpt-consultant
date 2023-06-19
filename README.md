@@ -1,3 +1,17 @@
+## Установка проекта:
+```
+git clone https://github.com/voidCaloneian/gpt-consultant.git
+cd gpt-consultant
+python webapp\manage.py makemigrations
+python webapp\manage.py migrate
+```
+## В корневой папке проекта (где находится .gitignore, README.md) откройте файл .env и присвойте в качестве значения переменной **OPENAIAPI_KEY** свой OpenAI API Key 
+## Запуск проекта:
+### Запуск сервера:
+  python webapp\manage.py runserver
+### Запуск телеграмм-бота:
+  python telegram-bot\main.py
+  
 # Структура проекта:
 - **webapp** - содержит сервер на Django для обработки запросов бота.
 - **telegram-bot** - содержит файлы, необходимые для работы телеграм-бота:
