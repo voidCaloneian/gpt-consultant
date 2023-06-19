@@ -1,14 +1,12 @@
 from dotenv import load_dotenv, find_dotenv
 from os import environ as env
+import time
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher.filters import Command
 from aiogram.types import ParseMode
 from aiogram import executor
 
-import time
-
-from modules.functions import api_handler
 from modules.conversation import Conversation, WELCOME_MESSAGE
 
 
@@ -29,7 +27,6 @@ def setup_bot(token: str):
     dp.register_message_handler(message_handler.handle_message)
 
     return dp
-
 
 class MessageHandler:
     def __init__(self):
