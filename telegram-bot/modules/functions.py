@@ -1,6 +1,6 @@
 from json import dumps
 
-from api import ApiHandler
+from .api import ApiHandler
 
 
 api_handler = ApiHandler()
@@ -49,8 +49,6 @@ def create_booking_info(hall_name, date, start_time, end_time, client_name, clie
         end_time: end_time,
         num_people: num_people
     }
-    print('Отправляем на сервер запрос на создание бронирования')
-    print(data)
     return get_json_response('booking/', dumping=False, post=True, data=data)
 
 def get_json_response(url, dumping=True, post=False, data=None):

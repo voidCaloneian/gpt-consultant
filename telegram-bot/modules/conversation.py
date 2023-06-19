@@ -4,8 +4,8 @@ from datetime import datetime
 from os import environ as env
 import openai 
 
-from conf import SystemRoleConf
-from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info, create_booking_info
+from .conf import SystemRoleConf
+from .functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info, create_booking_info
 
 
 ENV_FILE = find_dotenv()
@@ -84,13 +84,13 @@ class Conversation(MessageData):
 
 class OpenAIHandler:
     @retry(wait=wait_fixed(30), stop=stop_after_attempt(4))
-    def request_completion(self, messages, call_functions=True):
+    def request_completion(self, messages):
         response = openai.ChatCompletion.create(
             model=GPT_MODEL,
-            temperature=0.8,
+            temperature=0,
             messages=messages,
             functions=SystemRoleConf.functions,
-            function_call="auto" if call_functions else 'none',
+            function_call="auto",
         )
         return response
 
@@ -98,8 +98,3 @@ WELCOME_MESSAGE = '''
     Я - бот ассистент фотостудии. Я создан для помощи клиентам в выборе зала, 
     бронировании и предоставлении информации о фотостудии. Чем могу помочь?
 '''
-
-conv = Conversation()
-while True:
-    conv.handle_completion(input())
-    print(conv.messages[-1]['content'])
