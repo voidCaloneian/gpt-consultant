@@ -8,9 +8,9 @@ python webapp\manage.py migrate
 ## В корневой папке проекта (где находится .gitignore, README.md) откройте файл .env и присвойте в качестве значения переменной **OPENAIAPI_KEY** свой OpenAI API Key 
 ## Запуск проекта:
 ### Запуск сервера:
-  python webapp\manage.py runserver
+  ```python webapp\manage.py runserver```
 ### Запуск телеграмм-бота:
-  python telegram-bot\main.py
+  ```python telegram-bot\main.py```
   
 # Структура проекта:
 - **webapp** - содержит сервер на Django для обработки запросов бота.
