@@ -1,3 +1,6 @@
+from dotenv import load_dotenv, find_dotenv
+from os import environ as env
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.dispatcher.filters import Command
 from aiogram.types import ParseMode
@@ -7,6 +10,13 @@ import time
 
 from modules.functions import api_handler
 from modules.conversation import Conversation, WELCOME_MESSAGE
+
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+    
+telegram_bot_token = env.get('TELEGRAMBOT_TOKEN')
 
 
 def setup_bot(token: str):
