@@ -70,12 +70,12 @@ class SystemRoleConf:
                 }, 'required': ['hall',]
             },
             {
-                'name': 'generate_rental_info_table',
+                'name': 'generate_booking_info_table',
                 'description': '''Функция вызывается в конце диалога: когда вся информация о бронировании известна. ''',
                 'parameters': {
                     'type': 'object',
                     'properties': {
-                        'hall': {
+                        'hall_name': {
                             'type': 'string',
                             'description': 'Название зала'
                         },
@@ -93,23 +93,23 @@ class SystemRoleConf:
                             'type': 'integer',
                             'description': 'Длительность аренды'
                         },
-                        'name': {
+                        'client_name': {
                             'type': 'string',
                             'description': 'Имя клиента'
                         },
-                        'number_of_people': {
+                        'num_people': {
                             'type': 'integer',
                             'description': 'Количество людей, которые будут присутствовать.'
                         },
-                        'phone': {
+                        'client_phone': {
                             'type': 'integer',
                             'description': 'Номер телефона клиента'
                         },
-                        'email': {
+                        'client_email': {
                             'type': 'string',
                             'description': 'Почта клиента'
                         }
                     }
-                }, 'required': ['hall', 'date', 'time', 'duration', 'name', 'number_of_people', 'phone', 'email']
+                }, 'required': ['hall_name', 'date', 'time', 'duration', 'client_name', 'num_people', 'client_phone', 'client_email']
             }
         ]

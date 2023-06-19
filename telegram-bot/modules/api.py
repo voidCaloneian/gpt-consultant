@@ -16,7 +16,7 @@ class ApiHandler:
     def __init__(self):
         self.url = URL
         self.check_connection()
-    
+
     @retry(wait=wait_fixed(30), stop=stop_after_delay(5))
     def check_connection(self):
         try:
@@ -24,7 +24,7 @@ class ApiHandler:
             response.raise_for_status()
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
             raise requests.exceptions.ConnectionError(f"Не удалось подключиться к API: {e}")
-        
+
     def get(self, url):
         try:
             response = requests.get(self.url + url)
@@ -32,3 +32,14 @@ class ApiHandler:
             return response.json()
         except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
             return dumps({'error': str(e)})
+
+    def post(self, url, data=None):
+        try:
+            response = requests.post(url=self.url + url, data=data)
+            response.raise_for_status()
+            return response.json()
+        except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+            return dumps({'error': str(e)})
+
+    
+    

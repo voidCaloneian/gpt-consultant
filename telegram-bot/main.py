@@ -1,101 +1,62 @@
-from tenacity import retry, wait_fixed, stop_after_attempt
-from dotenv import load_dotenv, find_dotenv
-from datetime import datetime
-from os import environ as env
-import openai 
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters import Command
+from aiogram.types import ParseMode
+from aiogram import executor
 
-from conf import SystemRoleConf
-from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_rental_info_table
+import time
 
-
-ENV_FILE = find_dotenv()
-if ENV_FILE:
-    load_dotenv(ENV_FILE)
-    
-openai.api_key = env.get('OPENAIAPI_KEY')
-
-GPT_MODEL = 'gpt-3.5-turbo-0613'
+from modules.functions import api_handler
+from modules.conversation import Conversation, WELCOME_MESSAGE
 
 
-class MessageData(SystemRoleConf):
+def setup_bot(token: str):
+    bot = Bot(token=token)
+    storage = MemoryStorage()
+    dp = Dispatcher(bot, storage=storage)
+
+    message_handler = MessageHandler()
+
+    dp.register_message_handler(message_handler.handle_start_command, Command('start'))
+    dp.register_message_handler(message_handler.handle_message)
+
+    return dp
+
+
+class MessageHandler:
     def __init__(self):
-        self.messages = []
+        self.conversations = {}
+        self.users_last_message_time = {}
 
-    def add_message(self, role, content):
-        self.messages.append({'role': role, 'content': content})
+    async def handle_start_command(self, message: types.Message):
+        user_id = message.from_user.id
+        if user_id not in self.conversations:
+            self.conversations[user_id] = Conversation()
+        await message.answer(WELCOME_MESSAGE, parse_mode=ParseMode.HTML)
+
+    async def handle_message(self, message: types.Message):
+        user_id = message.from_user.id
+        current_time = time.time()
+        last_message_time = self.users_last_message_time.get(user_id)
     
-    def generate_system_message(self):
-        weekdays = ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
-        
-        current_datetime = datetime.now()
-        current_datetime_str = current_datetime.strftime("%d.%m.%Y %H:%M")
-        current_weekday_str = weekdays[current_datetime.weekday()]
-        
-        full_current_datetime_str = f'Текущая дата и время: {current_datetime_str}, текущий день недели: {current_weekday_str}.'
-        return {'role': 'assistant', 'content': self.system_message + full_current_datetime_str}
-        
-    def prepare_messages(self, user_message, temprorary_message=None):
-        messages = [
-            self.generate_system_message(), *self.messages,
-        ]
-        if user_message:
-            messages.append({'role': 'user', 'content': user_message})
-        if temprorary_message:
-            messages.append(temprorary_message)
-        return messages
-
-
-class Conversation(MessageData):
-    def __init__(self):
-        super().__init__()
-        self.api_handler = OpenAIHandler()
-
-    def handle_completion(self, user_message=None, temprorary_message=None):
-        response = self.api_handler.request_completion(self.prepare_messages(user_message, temprorary_message))
-        message = response['choices'][0]['message']
-        message_text = message.get('content')
-        
-        if user_message:
-            self.add_message('user', user_message)
-
-        if message.get("function_call"):
-            self.handle_function_call(message)
-            
+        if last_message_time is not None and current_time - last_message_time < 5:
+            await self.handle_quick_message(user_id, message)
         else:
-            self.handle_assistant_message(message_text) 
-            
-    def handle_function_call(self, message):
-        function_name = message['function_call']['name']
-        function_args = message['function_call']['arguments']
-        
-        function_response = eval(f'{function_name}(**{function_args})')
-
-        function_message = {
-            'role': 'function',
-            'name': function_name,
-            'content': str(function_response),
-        }   
-            
-        self.handle_completion(temprorary_message=function_message)
+            self.users_last_message_time[user_id] = current_time
+            await self.handle_slow_message(message)
     
-    def handle_assistant_message(self, message_text):
-        self.add_message('assistant', message_text) 
+    async def handle_quick_message(self, message: types.Message):
+        await message.answer('Подождите несколько секунд, прежде чем отправлять следующее сообщение.')
+    
+    async def handle_slow_message(self, user_id: int, message: types.Message):
+        conversation = self.conversations.setdefault(user_id, Conversation())
+        conversation.handle_completion(user_message=message.text)
+        response_text = conversation.messages[-1]['content']
+        await message.answer(response_text, parse_mode=ParseMode.HTML)
+    
 
 
-class OpenAIHandler:
-    @retry(wait=wait_fixed(30), stop=stop_after_attempt(3))
-    def request_completion(self, messages, call_functions=True):
-        response = openai.ChatCompletion.create(
-            model=GPT_MODEL,
-            temperature=0,
-            messages=messages,
-            functions=SystemRoleConf.functions,
-            function_call="auto" if call_functions else 'none',
-        )
-        return response
 
-conv = Conversation()
-
-while True:
-    conv.handle_completion(input('Ваше сообщение: '))
-    print(conv.messages[-1].get('content'))
+if __name__ == '__main__':
+    dp = setup_bot('BOT_TOKEN')
+    executor.start_polling(dp, skip_updates=True)
