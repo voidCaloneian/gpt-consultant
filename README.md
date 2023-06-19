@@ -32,7 +32,7 @@ python webapp\manage.py migrate
 - **generate_booking_info** - генерирует таблицу с данными о бронировании. Вызывается перед созданием объекта бронирования для того, чтобы клиент мог изменить свериться с данными в таблице и изменить что-то, если это нужно.
 - **create_booking_info** - создаёт объект бронирования (в базе данных сервера) для последующей генерации ссылки на оплату (ключ ссылки на оплату - сгенерированный hash ключ, основанный на информации о бронировании).
 
-### Ознакомиться с вызовом функций можно с использованием модели **gpt-3.5-turbo-0613** можно здесь:
--  ```https://github.com/openai/openai-cookbook/blob/main/examples/How_to_call_functions_with_chat_models.ipynb```
-- ```https://github.com/openai/openai-cookbook/blob/main/examples/How_to_call_functions_for_knowledge_retrieval.ipynb```
+### Ознакомиться с вызовом функций с использованием модели **gpt-3.5-turbo-0613** можно здесь:
+- https://github.com/openai/openai-cookbook/blob/main/examples/How_to_call_functions_with_chat_models.ipynb
+- https://github.com/openai/openai-cookbook/blob/main/examples/How_to_call_functions_for_knowledge_retrieval.ipynb
 
