@@ -5,7 +5,7 @@ from os import environ as env
 import openai 
 
 from conf import SystemRoleConf
-from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info_table, create_booking_info
+from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info, create_booking_info
 
 
 ENV_FILE = find_dotenv()
@@ -35,9 +35,9 @@ class MessageData(SystemRoleConf):
         return {'role': 'system', 'content': self.system_message + full_current_datetime_str}
         
     def prepare_messages(self, user_message, temprorary_message=None):
-        messages = [
-            self.generate_system_message(), *self.messages,
-        ]
+        messages = [*self.messages,]
+        if not temprorary_message:
+            messages.append(self.generate_system_message())
         if user_message:
             messages.append({'role': 'user', 'content': user_message})
         if temprorary_message:
@@ -83,12 +83,11 @@ class Conversation(MessageData):
 
 
 class OpenAIHandler:
-    @retry(wait=wait_fixed(30), stop=stop_after_attempt(3))
+    @retry(wait=wait_fixed(30), stop=stop_after_attempt(4))
     def request_completion(self, messages, call_functions=True):
-        print('Отправляю сообщение')
         response = openai.ChatCompletion.create(
             model=GPT_MODEL,
-            temperature=0,
+            temperature=0.8,
             messages=messages,
             functions=SystemRoleConf.functions,
             function_call="auto" if call_functions else 'none',
@@ -102,5 +101,5 @@ WELCOME_MESSAGE = '''
 
 conv = Conversation()
 while True:
-    conv.handle_completion(input('Ваше сообщение:'))
+    conv.handle_completion(input())
     print(conv.messages[-1]['content'])

@@ -19,7 +19,7 @@ def get_hall_price(hall):
 def get_halls_list():
     return get_json_response('hall/')
 
-def generate_booking_info_table(hall_name, date, time, duration, client_name, num_people, client_phone, client_email):
+def generate_booking_info(hall_name, date, time, duration, client_name, num_people, client_phone, client_email):
     hall_price = get_hall_price(hall_name).get('price_per_hour', 0)
     
     final_price = duration * hall_price
