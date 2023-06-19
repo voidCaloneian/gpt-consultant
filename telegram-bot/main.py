@@ -63,8 +63,6 @@ class MessageHandler:
         await message.answer(response_text, parse_mode=ParseMode.HTML)
     
 
-
-
 if __name__ == '__main__':
     dp = setup_bot(TELEGRAMBOT_TOKEN)
     executor.start_polling(dp, skip_updates=True)

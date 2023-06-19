@@ -79,6 +79,9 @@ class Booking(models.Model):
         if existing_bookings.exists():
             raise ValidationError('На это время зал уже забронирован.')
     
+    class Meta:
+        ordering = ('-date', 'hall__name', '-start_time')
+    
     def __str__(self):
         return f'{self.date.strftime("%d.%m.%Y")} {self.hall}: с {self.start_time} до {self.end_time}'
 

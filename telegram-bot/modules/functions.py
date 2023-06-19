@@ -56,6 +56,8 @@ def get_json_response(url, dumping=True, post=False, data=None):
         response_json = api_handler.post(url, data=data)
     else:
         response_json = api_handler.get(url)
+        
     if isinstance(response_json, dict) and 'detail' in response_json:
         response_json = {'error': response_json['detail']}
+        
     return dumps(response_json) if dumping else response_json
