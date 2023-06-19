@@ -1,14 +1,14 @@
-from http import client
 from json import dumps
 
-from .api import ApiHandler
+from api import ApiHandler
 
 
 api_handler = ApiHandler()
 
 
 def get_bookings_by_date(hall, date):
-    return get_json_response(f'hall/bookings/{hall}/{date}/')
+    response = get_json_response(f'hall/bookings/{hall}/{date}/')
+    return response
 
 def get_hall_info(hall):
     return get_json_response(f'hall/{hall.capitalize()}/')
@@ -18,8 +18,6 @@ def get_hall_price(hall):
 
 def get_halls_list():
     return get_json_response('hall/')
-
-
 
 def generate_booking_info_table(hall_name, date, time, duration, client_name, num_people, client_phone, client_email):
     hall_price = get_hall_price(hall_name).get('price_per_hour', 0)
@@ -51,9 +49,11 @@ def create_booking_info(hall_name, date, start_time, end_time, client_name, clie
         end_time: end_time,
         num_people: num_people
     }
-    return get_json_response('booking/')
+    print('Отправляем на сервер запрос на создание бронирования')
+    print(data)
+    return get_json_response('booking/', dumping=False, post=True, data=data)
 
-def get_json_response(url, dumping=True, post=True, data=None):
+def get_json_response(url, dumping=True, post=False, data=None):
     if post:
         response_json = api_handler.post(url, data=data)
     else:

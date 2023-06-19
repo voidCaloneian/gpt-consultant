@@ -4,8 +4,8 @@ from datetime import datetime
 from os import environ as env
 import openai 
 
-from .conf import SystemRoleConf
-from .functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info_table
+from conf import SystemRoleConf
+from functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info_table, create_booking_info
 
 
 ENV_FILE = find_dotenv()
@@ -32,7 +32,7 @@ class MessageData(SystemRoleConf):
         current_weekday_str = weekdays[current_datetime.weekday()]
         
         full_current_datetime_str = f'Текущая дата и время: {current_datetime_str}, текущий день недели: {current_weekday_str}.'
-        return {'role': 'assistant', 'content': self.system_message + full_current_datetime_str}
+        return {'role': 'system', 'content': self.system_message + full_current_datetime_str}
         
     def prepare_messages(self, user_message, temprorary_message=None):
         messages = [
@@ -85,6 +85,7 @@ class Conversation(MessageData):
 class OpenAIHandler:
     @retry(wait=wait_fixed(30), stop=stop_after_attempt(3))
     def request_completion(self, messages, call_functions=True):
+        print('Отправляю сообщение')
         response = openai.ChatCompletion.create(
             model=GPT_MODEL,
             temperature=0,
@@ -98,3 +99,8 @@ WELCOME_MESSAGE = '''
     Я - бот ассистент фотостудии. Я создан для помощи клиентам в выборе зала, 
     бронировании и предоставлении информации о фотостудии. Чем могу помочь?
 '''
+
+conv = Conversation()
+while True:
+    conv.handle_completion(input('Ваше сообщение:'))
+    print(conv.messages[-1]['content'])
