@@ -5,7 +5,9 @@ cd gpt-consultant
 python webapp\manage.py makemigrations
 python webapp\manage.py migrate
 ```
-## В корневой папке проекта (где находится .gitignore, README.md) откройте файл .env и присвойте в качестве значения переменной **OPENAIAPI_KEY** свой OpenAI API Key 
+## В корневой папке проекта (где находится .gitignore, README.md) в файле **.env** выполните эти действия:
+- Укажите свой OpenAI API Key **OPENAIAPI_KEY** 
+- Укажите токен своего телеграмм бота **TELEGRAMBOT_TOKEN** 
 ## Запуск проекта:
 ### Запуск сервера:
   ```python webapp\manage.py runserver```
