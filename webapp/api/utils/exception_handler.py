@@ -13,7 +13,7 @@ def api_exception_handler(exc, context):
         if hasattr(exc, 'missing_fields'):
             error_dict['missing_fields'] = exc.missing_fields
 
-        return Response(error_dict, status=exc.status_code)
+        return Response(error_dict, status=200)
     
     if response is not None:
         response.data['status_code'] = response.status_code

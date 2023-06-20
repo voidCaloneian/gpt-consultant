@@ -103,7 +103,7 @@ class OpenAIHandler:
         try:
             response = openai.ChatCompletion.create(
                 model=GPT_MODEL,
-                temperature=0.85,
+                temperature=0,
                 messages=messages,
                 functions=SystemRoleConf.functions,
                 function_call="auto",

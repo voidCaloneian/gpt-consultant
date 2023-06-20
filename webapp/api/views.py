@@ -74,8 +74,8 @@ class CheckBookingsByDayView(APIView):
                 'closing_time': hall_closing_time.strftime('%H')
             },
             'already_booked_time_ranges_by_hours': [{
-                'start': b['start_time'].strftime('%H'),
-                'end': b['end_time'].strftime('%H')
+                'start': b['start_time'].replace(hour=b['start_time'].hour - 1, minute=59).strftime('%H'),
+                'end': b['end_time'].replace(hour=b['start_time'].hour - 1, minute=59).strftime('%H')
             } for b in bookings]
         }
         print(bookings_dict)
@@ -90,7 +90,7 @@ class HashBookingView(APIView):
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
             raise BookingDataMissingError(missing_fields)
-        print(request.data)
+        
         hall_name = data['hall_name']
         client_name = data['client_name']
         client_email = data['client_email']
