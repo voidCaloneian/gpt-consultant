@@ -1,7 +1,4 @@
-from multiprocessing import Value
-from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
 from rest_framework.generics import RetrieveAPIView, ListAPIView
-from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -25,16 +22,10 @@ from dateutil.parser import parse
 URL = 'http://127.0.0.1:8000'
 
 
-class HallViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
+class HallViewSet(RetrieveAPIView):
     queryset = Hall.objects.all()
+    serializer_class = HallDetailSerializer
     lookup_field = 'name'
-    
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return HallDetailSerializer
-        if self.action == 'list':
-            return HallNameSerializer
-        return HallDetailSerializer
     
 class HallPriceView(RetrieveAPIView):
     queryset = Hall.objects.all()
