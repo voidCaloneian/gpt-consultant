@@ -25,7 +25,7 @@ class ApiHandler:
             print('Проверяем соединение с API')
             response = requests.get(self.url)
             response.raise_for_status()
-            print(f'Соединение с {self.url} успешно прошло проверку')
+            print(f'Соединение с {self.url} прошло успешно')
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
             raise requests.exceptions.ConnectionError(f"Не удалось подключиться к API \n {e}")
 

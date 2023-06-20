@@ -16,8 +16,8 @@ def get_hall_info(hall):
 def get_hall_price(hall):
     return get_json_response(f'hall/price/{hall.capitalize()}/', dumping=False)
 
-def get_halls_list():
-    return get_json_response('hall/')
+def get_halls_data(data_type):
+    return get_json_response(f'hall/?data={data_type}')
 
 def generate_booking_info(hall_name, date, time, duration, client_name, num_people, client_phone, client_email):
     hall_price = get_hall_price(hall_name).get('price_per_hour', 0)

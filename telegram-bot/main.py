@@ -16,6 +16,8 @@ if ENV_FILE:
     
 TELEGRAMBOT_TOKEN = env.get('TELEGRAMBOT_TOKEN')
 
+TOO_FAST_MESSAGE = 'Подождите несколько секунд, прежде чем отправлять следующее сообщение.'
+
 
 def setup_bot(token: str):
     bot = Bot(token=token)
@@ -51,7 +53,7 @@ class MessageHandler:
             await self.handle_slow_message(user_id, message)
     
     async def handle_quick_message(self, message: types.Message):
-        await message.answer('Подождите несколько секунд, прежде чем отправлять следующее сообщение.')
+        await message.answer(TOO_FAST_MESSAGE)
     
     async def handle_slow_message(self, user_id: int, message: types.Message):
         conversation = self.conversations.setdefault(user_id, Conversation())

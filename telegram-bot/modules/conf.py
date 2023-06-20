@@ -20,12 +20,23 @@ class SystemRoleConf:
     '''
     functions = [
         {
-            'name': 'get_halls_list',
-            'description': 'Когда требуется получить список названий залов',
-            'parameters': {
-                'type': 'object',
-                'properties': {},
-            }
+            "name": "get_halls_data",
+            "description":'''Когда нужно узнать определённую информацию обо всех залах сразу. Примеры использования:
+            1. Клиент не может определиться с залом, то получи description всех заллов.
+            2. Клиент хочет узнать, какие залы есть, то получи name всех залов.
+            3. Клиент хочет узнать, какие залы ему по карману, то получи price всех залов.
+            4. Клиент хочет узнать, какие залы он может арендовать на определенное время, то получи time всех залов.''',
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data_type": {
+                        "type": "string",
+                        "enum": ['description', 'price', 'time', 'rules', 'name'],
+                        "description": "Тип информации, которую ты хочешь получить.",
+                    }
+                },
+                "required": ["data_type",]
+            },
         },
         {
             'name': 'get_hall_info',
@@ -37,9 +48,8 @@ class SystemRoleConf:
                         'type': 'string',
                         'description': 'Имя зала'
                     }
-                }
-            }, 'required': ['hall',]
-            
+                }, 'required': ['hall',]
+            }
         },
         {
             'name': 'get_bookings_by_date',
@@ -69,8 +79,8 @@ class SystemRoleConf:
                         'type': 'string',
                         'description': 'Имя зала'
                     }
-                }
-            }, 'required': ['hall',]
+                }, 'required': ['hall',]
+            }
         },
         {
             'name': 'generate_booking_info',
@@ -112,8 +122,8 @@ class SystemRoleConf:
                         'type': 'string',
                         'description': 'Почта клиента'
                     }
-                }
-            }, 'required': ['hall_name', 'date', 'time', 'duration', 'client_name', 'num_people', 'client_phone', 'client_email']
+                }, 'required': ['hall_name', 'date', 'time', 'duration', 'client_name', 'num_people', 'client_phone', 'client_email']
+            }
         },
         {
             'name': 'create_booking_info',
@@ -156,7 +166,7 @@ class SystemRoleConf:
                         'type': 'string',
                         'description': 'Почта клиента'
                     }
-                }
-            }, 'required': ['hall_name', 'date', 'time', 'duration', 'client_name', 'num_people', 'client_phone', 'client_email']
+                }, 'required': ['hall_name', 'date', 'time', 'duration', 'client_name', 'num_people', 'client_phone', 'client_email']
+            }
         },
     ]

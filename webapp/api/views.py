@@ -1,5 +1,6 @@
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.generics import RetrieveAPIView
+from multiprocessing import Value
+from rest_framework.mixins import RetrieveModelMixin, ListModelMixin
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,9 +12,9 @@ from django.urls import reverse
 from django.views import View
 
 
+from .serializers import *
 from .models import Hall, Booking, BookingDetails
 from .services import calculate_cost, calculate_delta, get_hall_by_name
-from .serializers import HallDetailSerializer, HallListSerializer, HallPriceSerializer
 from .utils.exceptions import InvalidDateFormat, BookingDataMissingError, BookingNotFound
 
 import hashlib
@@ -32,13 +33,35 @@ class HallViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
         if self.action == 'retrieve':
             return HallDetailSerializer
         if self.action == 'list':
-            return HallListSerializer
+            return HallNameSerializer
         return HallDetailSerializer
     
 class HallPriceView(RetrieveAPIView):
     queryset = Hall.objects.all()
     serializer_class = HallPriceSerializer
     lookup_field = 'name'
+    
+class HallDataView(ListAPIView):
+    queryset = Hall.objects.all()
+    
+    def get_serializer_class(self):
+        data = self.request.GET.get('data')
+        print(data)
+        if data == 'price':
+            return HallPriceSerializer
+        elif data == 'description':
+            return HallDescriptionSerializer
+        elif data == 'rule':
+            return HallRulesSerializer
+        elif data == 'time':
+            return HallTimeSerializer
+        elif data == 'name':
+            return HallNameSerializer
+        else:
+            raise ValueError('''
+                Тип данных', data, 'ты не можешь получить, вот список доступных типов данных:
+                price, description, rule, time, name'''
+            )
     
 class CheckBookingsByDayView(APIView):
     def get(self, request, hall_name, date):

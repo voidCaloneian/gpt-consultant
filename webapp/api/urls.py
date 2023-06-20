@@ -5,7 +5,8 @@ from .views import (
     HallPriceView, 
     CheckBookingsByDayView, 
     HashBookingView,
-    CheckoutView
+    CheckoutView,
+    HallDataView
 )
 
 from rest_framework.routers import DefaultRouter
@@ -15,6 +16,7 @@ router = DefaultRouter()
 router.register('hall', HallViewSet, basename='hall')
 
 urlpatterns = [
+    path('hall/', HallDataView.as_view(), name='get-halls-data'),
     path('hall/price/<str:name>/', HallPriceView.as_view(), name='get-hall-price'),
     path('hall/bookings/<str:hall_name>/<str:date>/', CheckBookingsByDayView.as_view(), name='check-by-day'),
     

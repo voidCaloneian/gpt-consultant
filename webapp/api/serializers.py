@@ -18,13 +18,28 @@ class HallDetailSerializer(serializers.ModelSerializer):
         model = Hall
         fields = '__all__'
         
-class HallListSerializer(serializers.ModelSerializer):
+class HallNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hall
         fields = ('name', )
 
+class HallTimeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hall
+        fields = ('name', 'opening_time', 'closing_time')
+
+class HallRulesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hall
+        fields = ('name', 'rules')
+
 class HallPriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hall
-        fields = ('price_per_hour', )
+        fields = ('name', 'price_per_hour', )
+
+class HallDescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hall
+        fields = ('name', 'description')
     

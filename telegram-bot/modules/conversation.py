@@ -6,7 +6,7 @@ import openai
 
 from .conf import SystemRoleConf
 from .exceptions import ChatCompletionError
-from .functions import get_hall_info, get_bookings_by_date, get_hall_price, get_halls_list, generate_booking_info, create_booking_info
+from .functions import *
 
 
 ENV_FILE = find_dotenv()
@@ -17,10 +17,7 @@ openai.api_key = env.get('OPENAIAPI_KEY')
 
 GPT_MODEL = 'gpt-3.5-turbo-0613'
 
-WELCOME_MESSAGE = '''
-    Я - бот ассистент фотостудии. Я создан для помощи клиентам в выборе зала, 
-    бронировании и предоставлении информации о фотостудии. Чем могу помочь?
-'''
+WELCOME_MESSAGE = 'Я - бот ассистент фотостудии. Я создан для помощи клиентам в выборе зала, бронировании и предоставлении информации о фотостудии. Чем могу помочь?'
 
 
 class MessageData(SystemRoleConf):
@@ -64,7 +61,6 @@ class Conversation(MessageData):
             response = self.api_handler.request_completion(self.prepare_messages(user_message, temprorary_message))
             message = response['choices'][0]['message']
             message_text = message.get('content')
-
             if user_message:
                 self.add_message('user', user_message)
 
@@ -113,6 +109,9 @@ class OpenAIHandler:
                 function_call="auto",
             )
             return response
+        
+        except openai.error.RateLimitError:
+            raise ChatCompletionError('Системы обработки сообщений перегружены. Попробуйте написать через 10 минут')
         
         except Exception:
             raise ChatCompletionError()
