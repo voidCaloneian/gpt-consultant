@@ -22,7 +22,7 @@ from dateutil.parser import parse
 URL = 'http://127.0.0.1:8000'
 
 
-class HallViewSet(RetrieveAPIView):
+class HallDetailView(RetrieveAPIView):
     queryset = Hall.objects.all()
     serializer_class = HallDetailSerializer
     lookup_field = 'name'
