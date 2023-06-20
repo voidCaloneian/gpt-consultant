@@ -1,13 +1,6 @@
 from django.urls import path
 
-from .views import (
-    HallDetailView, 
-    HallPriceView, 
-    CheckBookingsByDayView, 
-    HashBookingView,
-    CheckoutView,
-    HallDataView
-)
+from .views import *
 
 
 urlpatterns = [
