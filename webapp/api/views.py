@@ -8,7 +8,6 @@ from django.db import transaction
 from django.urls import reverse
 from django.views import View
 
-
 from .serializers import *
 from .models import Hall, Booking, BookingDetails
 from .services import calculate_cost, calculate_delta, get_hall_by_name
@@ -37,7 +36,6 @@ class HallDataView(ListAPIView):
     
     def get_serializer_class(self):
         data = self.request.GET.get('data')
-        print(data)
         if data == 'price':
             return HallPriceSerializer
         elif data == 'description':
@@ -87,12 +85,12 @@ class HashBookingView(APIView):
     @transaction.atomic()
     def post(self, request):
         data = request.data
-
+        print('123')
         required_fields = ['hall_name', 'date', 'start_time', 'end_time', 'client_name', 'client_email', 'client_phone', 'num_people']
         missing_fields = [field for field in required_fields if not data.get(field)]
         if missing_fields:
             raise BookingDataMissingError(missing_fields)
-        
+        print(request.data)
         hall_name = data['hall_name']
         client_name = data['client_name']
         client_email = data['client_email']

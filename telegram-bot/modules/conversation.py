@@ -37,15 +37,13 @@ class MessageData(SystemRoleConf):
         full_current_datetime_str = f'Текущая дата и время: {current_datetime_str}, текущий день недели: {current_weekday_str}.'
         return {'role': 'system', 'content': self.system_message + full_current_datetime_str}
         
-    def prepare_messages(self, user_message, temprorary_message=None):
+    def prepare_messages(self, user_message=None, temprorary_message=None):
         messages = [*self.messages,]
         
         if not temprorary_message:
             messages.append(self.generate_system_message())
         if user_message:
             messages.append({'role': 'user', 'content': user_message})
-        if temprorary_message:
-            messages.append(temprorary_message)
             
         return messages
 
@@ -56,9 +54,11 @@ class Conversation(MessageData):
         super().__init__()
         self.api_handler = OpenAIHandler()
 
-    def handle_completion(self, user_message=None, temprorary_message=None):
+    def handle_completion(self, user_message=None):
         try:
-            response = self.api_handler.request_completion(self.prepare_messages(user_message, temprorary_message))
+            print('Отправляю сообщение')
+            response = self.api_handler.request_completion(self.prepare_messages(user_message))
+            print('Получил сообщение')
             message = response['choices'][0]['message']
             message_text = message.get('content')
             if user_message:
@@ -87,8 +87,8 @@ class Conversation(MessageData):
                 'name': function_name,
                 'content': str(function_response),
             }   
-            
-            self.handle_completion(temprorary_message=function_message)
+            self.messages.append(function_message)
+            self.handle_completion()
 
         except Exception:
             self.handle_assistant_message(self.request_error_message)
@@ -103,15 +103,21 @@ class OpenAIHandler:
         try:
             response = openai.ChatCompletion.create(
                 model=GPT_MODEL,
-                temperature=0,
+                temperature=0.85,
                 messages=messages,
                 functions=SystemRoleConf.functions,
                 function_call="auto",
             )
             return response
         
-        except openai.error.RateLimitError:
+        
+        except (openai.error.RateLimitError, openai.error.Timeout):
             raise ChatCompletionError('Системы обработки сообщений перегружены. Попробуйте написать через 10 минут')
         
-        except Exception:
+        except openai.error.AuthenticationError:
+            print('С вашим API Токеном что-то не так, пересоздайте его')
+            raise ChatCompletionError()
+        
+        except Exception as e:
+            print(type(e))
             raise ChatCompletionError()
