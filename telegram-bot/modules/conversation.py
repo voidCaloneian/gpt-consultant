@@ -16,6 +16,7 @@ if ENV_FILE:
 openai.api_key = env.get('OPENAIAPI_KEY')
 
 GPT_MODEL = 'gpt-3.5-turbo-0613'
+FULL_ACCURACY_TEMPERATURE = 0
 
 WELCOME_MESSAGE = 'Я - бот ассистент фотостудии. Я создан для помощи клиентам в выборе зала, бронировании и предоставлении информации о фотостудии. Чем могу помочь?'
 
@@ -56,13 +57,14 @@ class Conversation(MessageData):
 
     def handle_completion(self, user_message=None):
         try:
-            print('Отправляю сообщение')
+            print('Отправляю запрос на завершение диалога')
             response = self.api_handler.request_completion(self.prepare_messages(user_message))
-            print('Получил сообщение')
+            print('Получил ответ')
             message = response['choices'][0]['message']
             message_text = message.get('content')
+            
             if user_message:
-                self.add_message('user', user_message)
+                self.handle_user_message(user_message)
 
             if message.get("function_call"):
                 self.handle_function_call(message)
@@ -75,6 +77,9 @@ class Conversation(MessageData):
 
         except Exception:
             self.handle_assistant_message(self.request_error_message)
+    
+    def handle_user_message(self, message):
+        self.add_message('user', message)
             
     def handle_function_call(self, message):
         function_name = message['function_call']['name']
@@ -103,10 +108,10 @@ class OpenAIHandler:
         try:
             response = openai.ChatCompletion.create(
                 model=GPT_MODEL,
-                temperature=0,
+                temperature=FULL_ACCURACY_TEMPERATURE,
                 messages=messages,
                 functions=SystemRoleConf.functions,
-                function_call="auto",
+                function_call='auto',
             )
             return response
         
